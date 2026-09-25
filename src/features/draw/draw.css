@@ -1,0 +1,154 @@
+.draw { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.draw[data-layout='wide'], .draw[data-layout='side'] { flex-direction: row; }
+.draw__stage { position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.draw__top { display: flex; align-items: center; gap: 8px; padding: 10px 12px 2px; }
+.draw__top .btn { min-height: 48px; padding: 0 18px; }
+.draw__board { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; }
+
+.artboard {
+  position: relative; touch-action: none; user-select: none; -webkit-user-select: none;
+  border-radius: 18px; overflow: hidden; background: #0f1438;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08), 0 18px 50px rgba(0, 0, 0, 0.45);
+  cursor: crosshair;
+}
+.artboard[data-tool='stamp'] { cursor: copy; }
+.artboard[data-tool='fill'] { cursor: cell; }
+.artboard__layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+.draw__context {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 60px; padding: 4px 12px 8px;
+}
+.draw__context .btn { min-height: 48px; white-space: nowrap; }
+
+/* Mobile dock: the sheet sits in the layout (not over the art), so the picture is never covered. */
+.draw__dock .sheet { position: relative; border-radius: 26px 26px 0 0; padding: 0 10px 8px; }
+.draw__dock .sheet__grip { height: 20px; }
+.draw__dock .sheet__grip::before { top: 7px; }
+.draw__dock { min-width: 0; }
+.draw-peek { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+.draw-peek__row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.draw-peek__row > .scroll-x, .draw-peek__row > .draw-sizes { flex: 1; min-width: 0; }
+.draw-sheet-body { max-height: 42vh; overflow-y: auto; padding: 6px 2px 4px; }
+
+@media (max-height: 700px) {
+  .draw[data-layout='dock'] .draw__context:not(.draw__pagebar) {
+    position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 5;
+    background: var(--panel); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-radius: 999px; padding: 6px 8px; min-height: 0; border: 1px solid var(--line);
+  }
+}
+
+/* Side panel: phone landscape and desktop */
+.draw__panel {
+  width: 360px; flex: 0 0 auto; overflow-y: auto; padding: 16px 16px 24px;
+  background: var(--panel-solid); border-left: 1px solid var(--line);
+}
+.draw[data-layout='side'] .draw__panel { width: 272px; padding: 10px 10px 16px; }
+.draw[data-layout='side'] .draw__context { min-height: 52px; padding-bottom: 4px; }
+
+.draw-h { margin: 14px 0 6px; font-size: var(--fs-xs); font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); }
+
+/* Tools */
+.draw-tools { gap: 6px; }
+.draw-tools--grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.draw-tool {
+  position: relative; display: grid; place-items: center; gap: 2px;
+  min-width: 64px; min-height: 60px; padding: 6px 4px 10px; border: 0; border-radius: 18px;
+  background: var(--night-3); color: var(--ink); cursor: pointer; touch-action: manipulation;
+  font-size: 0.72rem; font-weight: 800; line-height: 1;
+  box-shadow: 0 4px 0 #0b0f33; transition: transform 120ms var(--ease-pop), background 120ms;
+}
+.draw-tool::after {
+  content: ''; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 4px; border-radius: 2px;
+  background: var(--tool-c); opacity: 0;
+}
+.draw-tool[aria-checked='true'] { background: var(--gold); color: var(--night); box-shadow: 0 4px 0 #b88a14; transform: translateY(-2px); }
+.draw-tool[aria-checked='true']::after { opacity: 1; }
+.draw-tool:active { transform: translateY(3px); box-shadow: 0 1px 0 #0b0f33; }
+.draw[data-layout='side'] .draw-tool { min-width: 0; min-height: 56px; }
+
+/* Colours */
+.draw-colours { align-items: center; padding-top: 6px; padding-bottom: 6px; }
+.draw-colours .swatch { width: 44px; height: 44px; }
+.swatch--custom { display: grid; place-items: center; background: conic-gradient(#ff5e5e, #ffc93c, #2fbf71, #6fd3ff, #8a5cf6, #ff6fb1, #ff5e5e); overflow: hidden; }
+.swatch--custom input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; border: 0; padding: 0; }
+.draw__panel .draw-colours { flex-wrap: wrap; overflow: visible; }
+
+/* Sizes */
+.draw-sizes { display: flex; gap: 8px; align-items: center; }
+.draw-size {
+  width: 52px; height: 52px; border-radius: 50%; border: 0; cursor: pointer;
+  display: grid; place-items: center; background: var(--night-3); box-shadow: 0 3px 0 #0b0f33;
+}
+.draw-size i { display: block; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.4); }
+.draw-size[aria-checked='true'] { box-shadow: 0 0 0 3px var(--gold); }
+
+/* Stamps */
+.draw-stamps { gap: 8px; }
+.draw-stamps--grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 12px; }
+.draw-stamp {
+  position: relative; display: grid; place-items: center; min-width: 58px; height: 58px; border: 0; border-radius: 16px;
+  background: var(--night-3); cursor: pointer; box-shadow: 0 3px 0 #0b0f33;
+}
+.draw-stamp[aria-checked='true'] { box-shadow: 0 0 0 3px var(--gold); background: #2c357f; }
+.draw-stamp[data-locked] canvas, .draw-scene[data-locked] canvas { filter: grayscale(1) brightness(0.45); }
+.draw[data-layout='side'] .draw-stamps--grid { grid-template-columns: repeat(4, 1fr); }
+.draw[data-layout='side'] .draw-stamp { min-width: 0; }
+.draw-lock { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--night); color: var(--gold); }
+
+/* Scenes and pages */
+.draw-scene {
+  position: relative; display: grid; justify-items: center; gap: 4px; padding: 6px; border: 0; border-radius: 16px;
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 0.72rem; font-weight: 700; max-width: 96px;
+}
+.draw-scene canvas { border-radius: 10px; box-shadow: 0 0 0 2px var(--line); }
+.draw-scene span { line-height: 1.1; text-align: center; }
+.draw-scene[aria-checked='true'] canvas, .draw-scene[aria-current='true'] canvas { box-shadow: 0 0 0 3px var(--gold); }
+.draw-scene[aria-checked='true'], .draw-scene[aria-current='true'] { color: var(--ink); }
+
+/* Zoom: pinch on touch screens, buttons with a mouse or on big screens */
+.draw__board { overflow: hidden; touch-action: none; }
+.artboard { transform-origin: 50% 50%; will-change: transform; }
+.draw-zoom {
+  position: absolute; right: 10px; bottom: 10px; z-index: 4; display: grid; gap: 6px;
+  padding: 6px; border-radius: 20px; background: var(--panel); border: 1px solid var(--line);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.draw-zoom .icon-btn { min-width: 44px; min-height: 44px; }
+
+/* Page bar: which page is open, explore it in 3D, learn about it */
+.draw__pagebar { flex-wrap: nowrap; min-width: 0; }
+.draw-pagechip { min-height: 48px; max-width: min(48vw, 320px); flex: 0 1 auto; min-width: 0; }
+.draw-pagechip__t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.draw-3d { min-height: 48px; padding: 0 16px; flex: 0 0 auto; }
+.draw-learn { flex: 0 0 auto; }
+.draw-pagebar__hint { color: var(--muted); font-size: var(--fs-s); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.draw-pagebar__hint strong { color: var(--ink); }
+.draw-pagebar__hint svg { vertical-align: -3px; }
+.draw-3d__short { display: none; }
+@media (max-width: 520px) {
+  .draw-pagebar__hint { display: none; }
+  .draw-3d__long { display: none; }
+  .draw-3d__short { display: inline; }
+  .draw-3d { padding: 0 14px; gap: 6px; }
+}
+@media (max-width: 419px) { .draw__top .hide-narrow { display: none; } }
+.draw[data-layout='side'] .draw-3d__long { display: none; }
+.draw[data-layout='side'] .draw-3d__short { display: inline; }
+@media (max-height: 700px) {
+  .draw[data-layout='dock'] .draw__pagebar { min-height: 52px; padding-top: 2px; padding-bottom: 4px; }
+}
+
+/* Colours: page suggestions first, divided from the regular swatches */
+.swatch--last-suggested { margin-right: 10px; }
+.swatch--last-suggested::after {
+  content: ''; position: absolute; right: -12px; top: 6px; bottom: 6px; width: 2px; border-radius: 1px; background: var(--line);
+}
+
+.draw-libbtn { width: 100%; margin-bottom: 6px; }
+.draw-scene .page-thumb { width: 54px; border-radius: 10px; box-shadow: 0 0 0 2px var(--line); overflow: hidden; }
+.draw-scene[aria-current='true'] .page-thumb { box-shadow: 0 0 0 3px var(--gold); }
+.page-thumb { display: block; background: #fff8ec; }
+.page-thumb img { width: 100%; height: 100%; display: block; }
+.draw[data-layout='wide'] .draw-scene, .draw[data-layout='side'] .draw-scene { max-width: 96px; }
