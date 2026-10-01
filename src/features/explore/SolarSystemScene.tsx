@@ -18,11 +18,13 @@ interface Props {
   paused: boolean;
   resetKey: number;
   reducedMotion: boolean;
+  /** Height in px of the info card covering the bottom of the canvas (0 when none). */
+  bottomInset?: number;
 }
 
 const focusVec = new THREE.Vector3();
 
-export function SolarSystemScene({ focusId, onFocus, paused, resetKey, reducedMotion }: Props) {
+export function SolarSystemScene({ focusId, onFocus, paused, resetKey, reducedMotion, bottomInset = 0 }: Props) {
   const positions = useRef<Record<string, THREE.Vector3>>({});
   const [, force] = useState(0);
   const focus = focusId ? positions.current[focusId] ?? null : null;
@@ -51,6 +53,7 @@ export function SolarSystemScene({ focusId, onFocus, paused, resetKey, reducedMo
         resetKey={resetKey}
         autoRotate={!reducedMotion && !focusId}
         focus={focus ? focusVec.copy(focus) : null}
+        bottomInset={bottomInset}
         focusDistance={focusId === 'sun' ? 7 : focusId === 'jupiter' || focusId === 'saturn' ? 4.5 : 2.8}
       />
       <Sun onTap={() => onFocus('sun')} positions={positions.current} />
