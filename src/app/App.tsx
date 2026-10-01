@@ -16,6 +16,8 @@ const HangarScreen = lazy(() => import('@/features/hangar/HangarScreen'));
 const DrawScreen = lazy(() => import('@/features/draw/DrawScreen'));
 const ArchiveScreen = lazy(() => import('@/features/archive/ArchiveScreen'));
 
+const HOME_TITLE = 'Indian Space Hub: Space Games & ISRO Missions for Kids';
+
 export function App() {
   const route = useRoute();
   const profile = useProgress((s) => s.profile);
@@ -26,8 +28,9 @@ export function App() {
   useEffect(() => { void loadGallery(); }, [loadGallery]);
   useEffect(() => { document.documentElement.classList.toggle('reduce-motion', reduced); }, [reduced]);
   useEffect(() => {
-    const titles = { home: 'Home', explore: 'Explore', hangar: 'Hangar', draw: 'Draw', archive: 'Mission Archive' } as const;
-    document.title = `${titles[route.screen]} · Indian Space Hub`;
+    const titles = { explore: 'Explore', hangar: 'Hangar', draw: 'Draw', archive: 'Mission Archive' } as const;
+    // The home title matches the one in index.html, so crawlers that run scripts see the same title as those that don't.
+    document.title = route.screen === 'home' ? HOME_TITLE : `${titles[route.screen]} · Indian Space Hub`;
   }, [route.screen]);
 
   if (!profile) {

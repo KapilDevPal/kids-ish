@@ -16,13 +16,15 @@ interface CameraRigProps {
   /** Optional: a world position the camera should glide to focus on (explorer). */
   focus?: THREE.Vector3 | null;
   focusDistance?: number;
+  /** Pixels at the bottom of the canvas covered by UI (an info card). The view shifts up so the focus stays clear of it. */
+  bottomInset?: number;
 }
 
 /**
  * Touch-first orbit camera: one finger rotates, two fingers pinch to zoom, no panning
  * (panning confuses young children). Idle auto-rotate kicks in after a few seconds untouched.
  */
-export function CameraRig({ position, target, min, max, resetKey, autoRotate, focus, focusDistance = 4 }: CameraRigProps) {
+export function CameraRig({ position, target, min, max, resetKey, autoRotate, focus, focusDistance = 4, bottomInset = 0 }: CameraRigProps) {
   const controls = useRef<OrbitControlsImpl>(null);
   const { camera, size } = useThree();
   // Tall phone screens need the camera a little further back so tall rockets fit, with room for the tool sheet.
@@ -38,6 +40,7 @@ export function CameraRig({ position, target, min, max, resetKey, autoRotate, fo
   const flying = useRef(0);
   const lastTouch = useRef(performance.now());
   const tmp = useRef(new THREE.Vector3());
+  const inset = useRef(0);
 
   useEffect(() => {
     homePos.current.set(...home());
@@ -55,8 +58,16 @@ export function CameraRig({ position, target, min, max, resetKey, autoRotate, fo
     const c = controls.current;
     if (!c) return;
     const k = 1 - Math.pow(0.02, dt);
+    // Glide the picture up into the part of the canvas the card leaves free (no effect when bottomInset is 0).
+    const want = focus ? Math.min(bottomInset, size.height * 0.6) : 0;
+    inset.current += (want - inset.current) * k;
+    const persp = camera as THREE.PerspectiveCamera;
+    if (inset.current > 0.5) persp.setViewOffset(size.width, size.height, 0, inset.current / 2, size.width, size.height);
+    else if (persp.view?.enabled) persp.clearViewOffset();
     if (focus) {
-      tmp.current.copy(camera.position).sub(c.target).setLength(focusDistance);
+      // Back off in proportion to how much of the canvas is covered, so big planets still fit in what is left.
+      const room = size.height / Math.max(size.height - bottomInset, size.height * 0.4);
+      tmp.current.copy(camera.position).sub(c.target).setLength(focusDistance * room);
       c.target.lerp(focus, k);
       camera.position.lerp(tmp.current.add(focus), k * 0.6);
     } else if (flying.current > 0) {

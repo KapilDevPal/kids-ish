@@ -26,6 +26,13 @@ gives a reason to come back. There are no timers, no failure states and no penal
 There are no accounts, ads, chat or uploads. Children choose a generated call sign rather than typing their name.
 Progress is kept in localStorage and creations in IndexedDB, both on the device only. Settings → Start over wipes everything.
 
+## SEO and AI discovery
+
+The app is a hash-routed single page, so `tools/seo/seo-plugin.ts` runs at the end of `npm run build` and writes crawlable
+static pages (`/missions/`, `/planets/`, `/colouring/`, `/about/`), `sitemap.xml`, `llms.txt`, `llms-full.txt` and `404.html`
+into `dist/`. They are generated from the same content files as the app, so new missions, planets and colouring pages appear
+automatically. The site origin is read from `public/CNAME`. These pages are separate from the app UI and link into it.
+
 ## Architecture
 
 ```

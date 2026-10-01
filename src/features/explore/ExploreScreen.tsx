@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import './explore.css';
 import { SolarSystemScene } from './SolarSystemScene';
 import { MissionLog } from './MissionLog';
@@ -8,6 +8,7 @@ import { track } from '@/state/gameplay';
 import { Icon } from '@/ui/Icon';
 import { go } from '@/app/router';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useIsWide } from '@/hooks/useMediaQuery';
 
 type Tab = 'space' | 'missions';
 
@@ -50,9 +51,23 @@ function SolarSystem({ initial }: { initial?: string }) {
   }, [initial, onFocus]);
   const seen = EXPLORABLE_IDS.filter((id) => discovered.includes(id)).length;
   const info = focus ? infoFor(focus) : null;
+  // On phones and tablets the info card sits over the bottom of the 3D view; tell the camera how much it covers.
+  const wide = useIsWide();
+  const cardRef = useRef<HTMLElement>(null);
+  const [cardH, setCardH] = useState(0);
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) { setCardH(0); return; }
+    const measure = () => setCardH(el.offsetHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [info?.name]);
+  const inset = info && !wide ? cardH + 24 : 0;
   return (
     <>
-      <SolarSystemScene focusId={focus} onFocus={onFocus} paused={false} resetKey={resetKey} reducedMotion={reduced} />
+      <SolarSystemScene focusId={focus} onFocus={onFocus} paused={false} resetKey={resetKey} reducedMotion={reduced} bottomInset={inset} />
       <div className="explore__meter">
         <div className="progress-dots" aria-label={`${seen} of ${EXPLORABLE_IDS.length} worlds visited`} role="img">
           {EXPLORABLE_IDS.map((id) => (
@@ -62,7 +77,7 @@ function SolarSystem({ initial }: { initial?: string }) {
       </div>
       {!info && <div className="explore__hint">Tap a planet to fly there</div>}
       {info && (
-        <section className="world-card" aria-live="polite">
+        <section className="world-card" aria-live="polite" ref={cardRef}>
           <button className="icon-btn icon-btn--round world-card__close" aria-label="Back to the whole Solar System" onClick={() => { setFocus(null); setResetKey((k) => k + 1); }}>
             <Icon name="close" />
           </button>
