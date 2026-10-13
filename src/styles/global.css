@@ -257,6 +257,28 @@ h3 { font-size: var(--fs-l); line-height: 1.15; font-weight: 700; }
 .confirm__card { width: min(100%, 360px); text-align: center; }
 .confirm__card p { color: var(--muted); margin: 8px 0 20px; }
 
+/* ---------- Early-access sign-up popup ---------- */
+.early {
+  position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 12px;
+  background: rgba(8, 10, 36, 0.85);
+}
+/* Near full-page so the whole form is readable without cramped scrolling. */
+.early__card {
+  position: relative; width: min(100%, 860px); height: calc(100dvh - 24px);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.early__card h3 { margin: 0; padding-right: 40px; }
+.early__card p { margin: 0; }
+.early__close {
+  position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 1.5rem; line-height: 1; cursor: pointer;
+}
+.early__form {
+  flex: 1; min-height: 0; width: 100%; border: 0; border-radius: var(--r-chip); background: #fff;
+}
+.early__actions { flex-wrap: wrap; justify-content: flex-end; }
+.early__link { color: var(--sky); font-size: var(--fs-xs); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
 }

@@ -7,6 +7,7 @@ import { useIsWide } from '@/hooks/useMediaQuery';
 import { Nav, BrandMark } from '@/ui/Nav';
 import { Toasts } from '@/ui/Toasts';
 import { CelebrationLayer } from '@/ui/CelebrationLayer';
+import { EarlyAccessPopup } from '@/ui/EarlyAccessPopup';
 import Onboarding from '@/features/onboarding/Onboarding';
 import HomeScreen from '@/features/home/HomeScreen';
 
@@ -38,6 +39,7 @@ export function App() {
       <div className="shell">
         <main className="shell__main"><Onboarding /></main>
         <Toasts />
+        <EarlyAccessPopup />
       </div>
     );
   }
@@ -59,6 +61,7 @@ export function App() {
       {!immersive && <Nav current={screen} />}
       <Toasts />
       <CelebrationLayer />
+      <EarlyAccessPopup />
     </div>
   );
 }
